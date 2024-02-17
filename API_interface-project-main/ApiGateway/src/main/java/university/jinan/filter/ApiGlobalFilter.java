@@ -152,7 +152,7 @@ public class ApiGlobalFilter implements GlobalFilter, Ordered {
         }
     }
 
-    // 加一个这个呢
+     // !! -1 d的话响应结果不会进入writeWith()
     @Override
     public int getOrder() {
         // -1 is response write filter, must be called before that
