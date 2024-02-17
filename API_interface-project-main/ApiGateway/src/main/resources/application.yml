@@ -1,0 +1,55 @@
+server:
+  port: 8091
+#使用dubbo进行远程调用【gateway项目作为消费者】，nacos作为注册中心
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848
+
+
+spring:
+  application:
+    name: dubbo-springboot-demo-consumer
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/api_database?serverTimezone=UTC&rewriteBatchedStatements=true&useSSL=false
+    username: root
+    password: hwj20020917
+# 网关转发请求：
+  cloud:
+    gateway:
+      globalcors: # 全局的跨域处理
+        add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: # 允许哪些网站的跨域请求
+              - "http://localhost:8101"
+              - "http://localhost:8080"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true # 是否允许携带cookie
+            maxAge: 360000 # 这次跨域检测的有效期
+      routes:
+        - id: API_gateway
+          # 将所有/api/.. 的请求转为 http://localhost:8101/api/...
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/**
+# 开启网关日志
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: trace
+
